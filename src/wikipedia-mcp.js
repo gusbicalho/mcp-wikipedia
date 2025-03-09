@@ -164,6 +164,75 @@ server.tool(
   }
 );
 
+// Get article content with pagination support
+server.tool(
+  "get-article-content",
+  {
+    title: z.string(),
+    start: z.number().optional().default(0),
+    length: z.number().optional().default(5000)
+  },
+  async ({ title, start, length }) => {
+    try {
+      const baseUrl = 'https://en.wikipedia.org/api/rest_v1';
+      const url = `${baseUrl}/page/html/${encodeURIComponent(title)}`;
+
+      // Set up headers for range request
+      const headers = {
+        'Range': `bytes=${start}-${start + length - 1}`
+      };
+
+      const response = await fetch(url, { headers });
+
+      // First request may return 206 Partial Content if range is valid
+      // or 200 OK if the server doesn't support range requests
+      if (response.status !== 200 && response.status !== 206) {
+        throw new Error(`Wikipedia API error: ${response.status} ${response.statusText}`);
+      }
+
+      // Get the HTML content as text
+      const htmlContent = await response.text();
+
+      // Get content length info if available
+      let totalLength = null;
+      let hasMore = false;
+      if (response.headers.get('Content-Range')) {
+        const rangeInfo = response.headers.get('Content-Range');
+        totalLength = parseInt(rangeInfo.split('/')[1], 10);
+        hasMore = start + htmlContent.length < totalLength;
+      }
+
+      // Include pagination info at the end of the content
+      let contentInfo = '';
+      if (start > 0 || hasMore) {
+        contentInfo = `\n\n--- Article content (bytes ${start}-${start + htmlContent.length - 1}`;
+        if (totalLength) {
+          contentInfo += ` of ${totalLength}`;
+        }
+        contentInfo += `) ---\n`;
+        if (hasMore) {
+          contentInfo += `To read more, request bytes starting from ${start + htmlContent.length}\n`;
+        }
+      }
+
+      return {
+        content: [{
+          type: "text",
+          text: htmlContent + contentInfo
+        }]
+      };
+    } catch (error) {
+      return {
+        content: [{
+          type: "text",
+          text: `Error retrieving article content: ${error.message}`
+        }],
+        isError: true
+      };
+    }
+  }
+);
+
 // Function to start the MCP server
 async function startServer() {
   try {
