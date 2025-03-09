@@ -4,12 +4,12 @@ A Wikipedia Model Context Provider for AI applications using the [Model Context 
 
 ## Overview
 
-This project provides a server that enables AI models to access Wikipedia content through standardized interfaces. It offers resources for retrieving article summaries and content, plus tools for searching Wikipedia, finding related articles, and fetching random articles.
+This project provides a server that enables AI models to access Wikipedia content through standardized interfaces using the Model Context Protocol (MCP). It offers tools for retrieving article summaries, segments, related articles, random articles, and searching Wikipedia content.
 
 ## Features
 
 - **Article Summary**: Retrieve concise summaries of Wikipedia articles
-- **Article Content**: Access the full HTML content of Wikipedia articles
+- **Article Segments**: Retrieve structured sections of Wikipedia articles
 - **Related Articles**: Find articles related to a specific topic
 - **Random Article**: Discover random Wikipedia articles
 - **Search**: Search Wikipedia for specific topics
@@ -49,16 +49,24 @@ The server uses standard input/output for communication following the MCP protoc
 
 ## API
 
-### Resources
-
-- `wikipedia://summary/{title}` - Get a summary of a Wikipedia article
-- `wikipedia://content/{title}` - Get the full HTML content of a Wikipedia article
+This MCP server uses the Wikipedia REST API v1 for most functionality, with the search feature using the MediaWiki Action API.
 
 ### Tools
 
+- `get-article-summary` - Get a summary of a Wikipedia article
+  - Parameters: `title` (string) - The title of the Wikipedia article
+
+- `get-article-segments` - Get article segments/sections
+  - Parameters: `title` (string) - The title of the Wikipedia article
+
 - `find-related-articles` - Find articles related to a given title
+  - Parameters: `title` (string) - The title of the Wikipedia article
+
 - `random-article` - Get a random Wikipedia article
+  - Parameters: none
+
 - `search-wikipedia` - Search Wikipedia for articles matching a query
+  - Parameters: `query` (string) - The search query
 
 ## License
 
