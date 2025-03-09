@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Wikipedia Model Context Provider for AI applications",
   "main": "src/index.js",
+  "bin": {
+    "mcp-wikipedia": "bin/mcp-wikipedia.js"
+  },
   "scripts": {
     "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
